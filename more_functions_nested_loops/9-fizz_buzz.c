@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 /**
  * main - main block, solve fizz buzz from numbers 1 to 100
