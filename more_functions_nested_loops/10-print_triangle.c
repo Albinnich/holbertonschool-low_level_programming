@@ -10,7 +10,6 @@
 void print_triangle(int size)
 
 {
-	
 	int c, i, j;
 
 	c = 0;
