@@ -4,7 +4,6 @@
  */
 
 #include "main.h"
-#include <stdio.h>
 
 /**
  * _memset() function fills memory with a constant byte
