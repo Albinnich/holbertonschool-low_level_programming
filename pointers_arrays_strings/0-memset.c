@@ -1,3 +1,8 @@
+/*
+ * file: 0-memset.c
+ * Auth: Albina Ismayilova
+ */
+
 #include "main.h"
 #include <stdio.h>
 
@@ -10,11 +15,13 @@
  */
 
 int main(void)
-{
+
 	char *_memset(char *s, char b, unsigned int n)
-	unsigned int i;
-	for (i = 0; i < n; i++) {
-		s[i] = b;
+{
+		while (n)
+		{
+			s[n - 1] = b;
+			n--;
 	}
-	return s;
+	return (s);
 }
