@@ -2,7 +2,7 @@
 #include <stddef.h>
 
 /**
- * _strpbrk - function locates first appear in the string s
+ * _strpbrk - The _strpbrk function locates first appear in the string s
  * and returns pointer to the byte in s that
  * matches one of the bytes in accept, or NULL
  * if no such byte is found
