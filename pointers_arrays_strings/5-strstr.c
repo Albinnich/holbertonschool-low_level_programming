@@ -1,6 +1,7 @@
 #include "main.h"
 
-/** _strstr - The _strstr function finds the first appear
+/**
+ * _strstr - The _strstr() function finds the first appear
  * of substring needle in the string haystack. The
  * terminating null bytes (\0) are not compared
  * @haystack: string
