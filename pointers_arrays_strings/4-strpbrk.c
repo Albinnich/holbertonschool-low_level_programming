@@ -8,7 +8,9 @@
  * if no such byte is found
  * @s: first string
  * @accept: second string
- * return: returns pointer to the byte s
+ * return: returns pointer to the byte in s that matches
+ * one of the bytes in accept, or NULL if no such byte
+ * is found
  */
 
 char *_strpbrk(char *s, char *accept)
