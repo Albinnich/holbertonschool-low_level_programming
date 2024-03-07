@@ -3,7 +3,8 @@
 /**
  * _puts_recursion - The _puts_recursion function prints a string
  * @s: string
- * Return: nothing returns
+ * Return: on success 1.
+ * On error, -1 is returned, and errno is set correctly.
  */
 
 void _puts_recursion(char *s)
