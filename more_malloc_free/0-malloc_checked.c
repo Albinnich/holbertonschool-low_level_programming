@@ -3,10 +3,9 @@
 #include <stdlib.h>
 
 /**
- * malloc_checked - functtion *malloc_checked to allocate
- * memory with malloc
- * @b: parameter
- * return: 0
+ * *malloc_checked - allocate memory with malloc
+ * @b: unsigned int type
+ * Return: return a pointer
  */
 
 void *malloc_checked(unsigned int b)
