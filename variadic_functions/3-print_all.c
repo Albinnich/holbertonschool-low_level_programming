@@ -4,10 +4,6 @@
 /**
  * print_all - function that prints anything
  * @format: list of types of arguments
- * @c: character
- * @i: integer
- * @f: float
- * @s: string
  * Return: nothing
  */
 
@@ -33,7 +29,7 @@ void print_all(const char * const format, ...)
 				printf("%i", va_arg(args, int));
 				break;
 			case 'f':
-				printf("%f", va_arg(args, double));
+				printf("%lf", va_arg(args, double));
 				break;
 			case 's':
 				str = va_arg(args, char *);
