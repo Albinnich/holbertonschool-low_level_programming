@@ -4,10 +4,10 @@
 /**
  * print_all - function that prints anything
  * @format: list of types of arguments
- * @c: char
+ * @c: character
  * @i: integer
  * @f: float
- * @s: char *
+ * @s: string
  * Return: nothing
  */
 
