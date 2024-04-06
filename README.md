@@ -1,2 +1,1 @@
-# holbertonschool-low_level_programming
-# Betty
+C topics and tasks on low level programming
