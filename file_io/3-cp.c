@@ -8,86 +8,112 @@
 #define BUFFER_SIZE 1024
 
 /**
- *print_error - a function that prints error message
+ * check97 - checks for the correct number of arguments
+ * @argc: number of arguments
  *
- *@num: exit code
- *@message: the message to be printed
+ * Return: void
  */
-
-void print_error(int num, const char *message)
+void check97(int argc)
 {
-	dprintf(STDERR_FILENO, "%s\n",  message);
-	exit(num);
-}
-
-/**
- *_close - a function to close file descriptors
- *@fd: file descriptor to close
- *
- */
-
-void _close(int fd)
-{
-	int c;
-
-	c = close(fd);
-
-	if (c == -1)
+	if (argc != 3)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
-			exit(100);
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+		exit(97);
 	}
 }
 
 /**
- *main - function to copy content of a file into another file
+ * check98 - checks that file_from exists and can be read
+ * @check: checks if true of false
+ * @file: file_from name
+ * @fd_from: file descriptor of file_from, or -1
+ * @fd_to: file descriptor of file_to, or -1
  *
- *@argc: number of arrguments
- *@argv: array of arguments
- *
- *Return: Always 0
+ * Return: void
  */
-
-
-int main(int argc, char *argv[])
+void check98(ssize_t check, char *file, int fd_from, int fd_to)
 {
-	int fd1, fd2, r, w;
-	char buffer[BUFFER_SIZE];
-
-	if (argc < 3)
-		print_error(97, "Usage: cp file_from file_to");
-
-	fd1 = open(argv[1], O_RDONLY);
-	if (fd1 == -1)
+	if (check == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file);
+		if (fd_from != -1)
+			close(fd_from);
+		if (fd_to != -1)
+			close(fd_to);
 		exit(98);
 	}
-	umask(0);
+}
 
-	fd2 = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
-	if (fd2 == -1)
+/**
+ * check99 - checks that file_to was created and/or can be written to
+ * @check: checks if true of false
+ * @file: file_to name
+ * @fd_from: file descriptor of file_from, or -1
+ * @fd_to: file descriptor of file_to, or -1
+ *
+ * Return: void
+ */
+void check99(ssize_t check, char *file, int fd_from, int fd_to)
+{
+	if (check == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file);
+		if (fd_from != -1)
+			close(fd_from);
+		if (fd_to != -1)
+			close(fd_to);
 		exit(99);
 	}
+}
 
-	do {
-		r = read(fd1, buffer, BUFFER_SIZE);
-		if (r == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-			exit(98);
-		}
-		w = write(fd2, buffer, r);
-		if (w == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-			exit(99);
-		}
-	} while (r > 0);
+/**
+ * check100 - checks that file descriptors were closed properly
+ * @check: checks if true or false
+ * @fd: file descriptor
+ *
+ * Return: void
+ */
+void check100(int check, int fd)
+{
+	if (check == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
+		exit(100);
+	}
+}
+/**
+ * main - opies the content of a file to another file.
+ * @argc: number of arguments passed
+ * @argv: array of pointers to the arguments
+ *
+ * Return: 0 on success
+ */
+int main(int argc, char *argv[])
+{
+	int fd_from, fd_to, close_to, close_from;
+	ssize_t lenr, lenw;
+	char buffer[1024];
+	mode_t file_perm;
 
-	_close(fd1);
-	_close(fd2);
+	check97(argc);
+	fd_from = open(argv[1], O_RDONLY);
+	check98((ssize_t)fd_from, argv[1], -1, -1);
+	file_perm = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+	fd_to = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, file_perm);
+	check99((ssize_t)fd_to, argv[2], fd_from, -1);
+	lenr = 1024;
+	while (lenr == 1024)
+	{
+		lenr = read(fd_from, buffer, 1024);
+		check98(lenr, argv[1], fd_from, fd_to);
+		lenw = write(fd_to, buffer, lenr);
+		if (lenw != lenr)
+			lenw = -1;
+		check99(lenw, argv[2], fd_from, fd_to);
+	}
+	close_to = close(fd_to);
+	close_from = close(fd_from);
+	check100(close_to, fd_to);
+	check100(close_from, fd_from);
 	return (0);
 }
