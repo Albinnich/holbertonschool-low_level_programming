@@ -17,7 +17,7 @@
 
 void copier(const char *file_from, const char *file_to)
 {
-	int fd, fd2, r = 1, w, c;
+	int fd, fd2, r, w, c;
 	char *buf = malloc(BUFFER_SIZE);
 
 	fd2 = open(file_from, O_RDONLY);
@@ -27,22 +27,32 @@ void copier(const char *file_from, const char *file_to)
 		exit(98);
 	}
 	umask(0);
-	fd = open(file_to, O_TRUNC | O_CREAT | O_WRONLY, 0664);
-	while (r > 0)
+fd = open(file_to, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (fd == -1)
 	{
-		r = read(fd2, buf, BUFFER_SIZE);
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to);
+		exit(99);
+	}
+	while ((r = read(fd2, buf, BUFFER_SIZE)) > 0)
+	{
 		w = write(fd, buf, r);
+		if (w == -1 || w != r)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to);
+			exit(99);
+		}
+	}
 		if (r == -1)
 		{
 			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
 			exit(98);
 		}
-		if (fd == -1 || w == -1)
-			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to), exit(99);
-	}
 	c = close(fd);
 	if (c == -1)
 		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd), exit(100);
+	c = close(fd2);
+	if (c == -1)
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd2), exit(100);
 	free(buf);
 }
 
@@ -58,12 +68,8 @@ void copier(const char *file_from, const char *file_to)
 
 int main(int argc, char **argv)
 {
-	char *file_from, *file_to;
-
 	if (argc != 3)
 		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n"), exit(97);
-	file_from = argv[1];
-	file_to = argv[2];
-	copier(file_from, file_to);
+	copier(argv[1], argv[2]);
 	return (0);
 }
