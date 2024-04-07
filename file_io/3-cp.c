@@ -10,62 +10,47 @@
 #define BUFFER_SIZE 1024
 
 /**
- * copier - copy the content of first argument to another.
- *
- * @file_from: source file.
- *
- * @file_to: destination file.
+ * copy_file - copy the content of first argument to another.
+ * print_error - function that prints error
+ * main: check the code
+ * @message: message to print
+ * @code: return code
  */
 
-void copier(const char *file_from, const char *file_to)
+void print_error(const char *message, int code)
 {
-	int fd, fd2, r = 1, w, c;
-	char *buf = malloc(BUFFER_SIZE);
+	dprintf(STDERR_FILENO, "%s\n", message);
+	exit(code);
+}
+void copy_file(const char *file_from, const char *file_to)
+{
+	int fd_from, fd_to;
+	ssize_t bytes_read;
+	char buffer[BUFFER_SIZE];
 
-	fd2 = open(file_from, O_RDONLY);
-	if (fd2 == -1)
+	fd_from = open(file_from, O_RDONLY);
+	if (fd_from == -1)
+	print_error("Error: Can't read from file", 98);
+	fd_to = open(file_to, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+	if (fd_to == -1)
+	print_error("Error: Can't write to file", 99);
+	while ((bytes_read = read(fd_from, buffer, BUFFER_SIZE)) > 0)
+
+	if (write(fd_to, buffer, bytes_read) != bytes_read)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
-		exit(98);
+	print_error("Error: Can't write to file", 99);
 	}
-	umask(0);
-	fd = open(file_to, O_TRUNC | O_CREAT | O_WRONLY, 0664);
-	while (r > 0)
-	{
-		r = read(fd2, buf, BUFFER_SIZE);
-		w = write(fd, buf, r);
-		if (r == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
-			exit(98);
-		}
-		if (fd == -1 || w == -1)
-			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to), exit(99);
-	}
-	c = close(fd);
-	if (c == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd), exit(100);
-	free(buf);
+	if (bytes_read == -1)
+	print_error("Error: Can't read from file", 98);
+	if (close(fd_from) == -1 || close(fd_to) == -1)
+	    print_error("Error: Can't close fd", 100);
 }
 
-/**
- * main - main block.
- *
- * @argc: count of arguments.
- *
- * @argv: argument vector.
- *
- * Return: always 0.
- */
-
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-	char *file_from, *file_to;
-
 	if (argc != 3)
-		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n"), exit(97);
-	file_from = argv[1];
-	file_to = argv[2];
-	copier(file_from, file_to);
+	print_error("Usage: cp file_from file_to", 97);
+	copy_file(argv[1], argv[2]);
+
 	return (0);
 }
