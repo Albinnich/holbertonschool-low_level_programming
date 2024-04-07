@@ -8,68 +8,86 @@
 #define BUFFER_SIZE 1024
 
 /**
- * copier - copy the content of first argument to another.
+ *print_error - a function that prints error message
  *
- * @file_from: source file.
- *
- * @file_to: destination file.
+ *@num: exit code
+ *@message: the message to be printed
  */
 
-void copier(const char *file_from, const char *file_to)
+void print_error(int num, const char *message)
 {
-	int fd, fd2, r, w, c;
-	char *buf = malloc(BUFFER_SIZE);
-
-	fd2 = open(file_from, O_RDONLY);
-	if (fd2 == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
-		exit(98);
-	}
-	umask(0);
-fd = open(file_to, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-	if (fd == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to);
-		exit(99);
-	}
-	while ((r = read(fd2, buf, BUFFER_SIZE)) > 0)
-	{
-		w = write(fd, buf, r);
-		if (w == -1 || w != r)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to);
-			exit(99);
-		}
-	}
-		if (r == -1)
-		{
-			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
-			exit(98);
-		}
-	c = close(fd);
-	if (c == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd), exit(100);
-	c = close(fd2);
-	if (c == -1)
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd2), exit(100);
-	free(buf);
+	dprintf(STDERR_FILENO, "%s\n",  message);
+	exit(num);
 }
 
 /**
- * main - main block.
+ *_close - a function to close file descriptors
+ *@fd: file descriptor to close
  *
- * @argc: count of arguments.
- *
- * @argv: argument vector.
- *
- * Return: always 0.
  */
 
-int main(int argc, char **argv)
+void _close(int fd)
 {
-	if (argc != 3)
-		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n"), exit(97);
-	copier(argv[1], argv[2]);
+	int c;
+
+	c = close(fd);
+
+	if (c == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
+			exit(100);
+	}
+}
+
+/**
+ *main - function to copy content of a file into another file
+ *
+ *@argc: number of arrguments
+ *@argv: array of arguments
+ *
+ *Return: Always 0
+ */
+
+
+int main(int argc, char *argv[])
+{
+	int fd1, fd2, r, w;
+	char buffer[BUFFER_SIZE];
+
+	if (argc < 3)
+		print_error(97, "Usage: cp file_from file_to");
+
+	fd1 = open(argv[1], O_RDONLY);
+	if (fd1 == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+		exit(98);
+	}
+	umask(0);
+
+	fd2 = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
+	if (fd2 == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+		exit(99);
+	}
+
+	do {
+		r = read(fd1, buffer, BUFFER_SIZE);
+		if (r == -1)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
+			exit(98);
+		}
+		w = write(fd2, buffer, r);
+		if (w == -1)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
+			exit(99);
+		}
+	} while (r > 0);
+
+	_close(fd1);
+	_close(fd2);
 	return (0);
 }
